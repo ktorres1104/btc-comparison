@@ -54,12 +54,19 @@ function Sparkline({ data, positive }) {
   )
 }
 
-function CoinRow({ coin, rank }) {
+function CoinRow({ coin, rank, isSelected, onSelect }) {
   const positive = coin.price_change_percentage_24h >= 0
   const sparkData = coin.sparkline_in_7d?.price
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-700/60 bg-slate-800/40 px-4 py-3 transition-all duration-200 hover:border-cyan-500/30 hover:bg-slate-800/70">
+    <div
+      onClick={onSelect}
+      className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200 ${
+        isSelected
+          ? 'border-cyan-500/70 bg-slate-800/80 shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
+          : 'border-slate-700/60 bg-slate-800/40 hover:border-cyan-500/30 hover:bg-slate-800/70'
+      }`}
+    >
       {/* Rank */}
       <span className="w-5 shrink-0 text-center text-sm font-bold text-slate-500">
         {rank}
@@ -131,7 +138,7 @@ function SkeletonRow() {
   )
 }
 
-export function TopCoins({ coins, loading, error, countdown, onRefresh }) {
+export function TopCoins({ coins, loading, error, countdown, onRefresh, selectedCoin, onSelectCoin }) {
   return (
     <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-6">
       {/* Header */}
@@ -141,7 +148,7 @@ export function TopCoins({ coins, loading, error, countdown, onRefresh }) {
             <Flame className="h-5 w-5 text-orange-400" />
             <h2 className="font-semibold text-white">Top 5 Most Tradable Coins</h2>
           </div>
-          <p className="mt-0.5 text-xs text-slate-500">Ranked by 24h trading volume · USD</p>
+          <p className="mt-0.5 text-xs text-slate-500">Ranked by 24h trading volume · Click a coin to view its chart</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-slate-500">
@@ -179,7 +186,13 @@ export function TopCoins({ coins, loading, error, countdown, onRefresh }) {
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
           : coins?.map((coin, i) => (
-              <CoinRow key={coin.id} coin={coin} rank={i + 1} />
+              <CoinRow
+                key={coin.id}
+                coin={coin}
+                rank={i + 1}
+                isSelected={selectedCoin === coin.id}
+                onSelect={() => onSelectCoin(coin.id)}
+              />
             ))}
       </div>
 

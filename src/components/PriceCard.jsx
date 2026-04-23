@@ -1,32 +1,33 @@
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 
-const CURRENCY_SYMBOLS = { usd: '$', eur: '€', gbp: '£' }
-const CURRENCY_NAMES = { usd: 'US Dollar', eur: 'Euro', gbp: 'British Pound' }
+function formatPrice(price, symbol) {
+  if (price === undefined || price === null) return '—'
+  const fmt = price >= 1000
+    ? price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : price >= 1
+    ? price.toFixed(4)
+    : price.toPrecision(4)
+  return `${symbol}${fmt}`
+}
 
-export function PriceCard({ prices, currency, countdown, onRefresh }) {
-  const symbol = CURRENCY_SYMBOLS[currency]
-  const price = prices?.[currency]
-  const change = prices?.[`${currency}_24h_change`]
-  const isPositive = change >= 0
-
-  const fmt = (n) =>
-    n?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+export function PriceCard({ coinName, price, symbol, change24h, countdown, onRefresh }) {
+  const isPositive = (change24h ?? 0) >= 0
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-slate-800 p-8 shadow-2xl shadow-cyan-500/10">
-      {/* Glow orb */}
+      {/* Glow orbs */}
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-blue-600/10 blur-3xl" />
 
       <div className="relative">
         <div className="mb-2 flex items-center gap-2 text-sm font-medium tracking-widest text-cyan-400 uppercase">
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-cyan-400" />
-          Bitcoin · {CURRENCY_NAMES[currency]}
+          {coinName} · Live Price
         </div>
 
         <div className="mb-4 flex items-end gap-4">
           <span className="text-6xl font-bold tracking-tight text-white">
-            {symbol}{fmt(price)}
+            {formatPrice(price, symbol)}
           </span>
         </div>
 
@@ -43,7 +44,7 @@ export function PriceCard({ prices, currency, countdown, onRefresh }) {
             ) : (
               <TrendingDown className="h-4 w-4" />
             )}
-            {isPositive ? '+' : ''}{change?.toFixed(2)}% (24h)
+            {isPositive ? '+' : ''}{change24h?.toFixed(2)}% (24h)
           </div>
 
           <button
