@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Bitcoin, AlertCircle } from 'lucide-react'
 import { useBTCData } from './hooks/useBTCData'
+import { useTopCoins } from './hooks/useTopCoins'
 import { PriceCard } from './components/PriceCard'
 import { CurrencyToggle } from './components/CurrencyToggle'
 import { PriceChart } from './components/PriceChart'
 import { AlertSimulator } from './components/AlertSimulator'
+import { TopCoins } from './components/TopCoins'
 import { ComparisonCard } from './components/ComparisonCard'
 
 function LoadingSkeleton() {
@@ -20,6 +22,7 @@ function LoadingSkeleton() {
 export default function App() {
   const [currency, setCurrency] = useState('usd')
   const { prices, history, loading, error, countdown, refresh } = useBTCData()
+  const { coins, loading: coinsLoading, error: coinsError, countdown: coinsCountdown, refresh: coinsRefresh } = useTopCoins()
 
   return (
     <div className="min-h-screen bg-[#060b18]">
@@ -100,8 +103,17 @@ export default function App() {
           </>
         )}
 
-        {/* Comparison */}
-        <ComparisonCard />
+        {/* Top 5 Most Tradable Coins */}
+        <TopCoins
+          coins={coins}
+          loading={coinsLoading}
+          error={coinsError}
+          countdown={coinsCountdown}
+          onRefresh={coinsRefresh}
+        />
+
+        {/* Comparison + Coins to Watch */}
+        <ComparisonCard coins={coins} />
 
         <footer className="border-t border-slate-800 pt-6 text-center text-xs text-slate-600">
           Built with React · Vite · Tailwind CSS · Recharts · CoinGecko API
